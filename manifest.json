@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Arrows for PL-Tools",
+  "description": "Enables movement between cells with arrow keys",
+  "version": "1.0.0",
+  "author": "me@cristimacovei.dev",
+
+  "content_scripts": [
+    {
+      "matches": ["https://alin1popa.github.io/pl-tools/*"],
+      "js": ["build/content/arrows.js"]
+    }
+  ],
+
+  "host_permissions": ["https://alin1popa.github.io/pl-tools/*"]
+}
