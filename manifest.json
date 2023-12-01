@@ -12,5 +12,12 @@
     }
   ],
 
-  "host_permissions": ["https://alin1popa.github.io/pl-tools/*"]
+  "host_permissions": ["https://alin1popa.github.io/pl-tools/*"],
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "arrows-for-pl-tools@cristimacovei.dev",
+      "strict_min_version": "42.0"
+    }
+  }
 }
