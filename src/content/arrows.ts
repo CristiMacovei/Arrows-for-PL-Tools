@@ -21,6 +21,26 @@ function getKarnaughCells(): HTMLInputElement[][] {
   return cells;
 }
 
+function getSequenceCells(): HTMLInputElement[][] {
+  const table = document.querySelector('.rightside-text > table');
+
+  const rows = Array.from(table.querySelectorAll('tr')).slice(1);
+
+  const cells = rows.map((row) => Array.from(row.querySelectorAll('input')));
+
+  return cells;
+}
+
+function getOrganigramCells(): HTMLInputElement[][] {
+  const table = document.querySelector('.content > div > table:nth-child(3)');
+
+  const rows = Array.from(table.querySelectorAll('tr')).slice(1, -1);
+
+  const cells = rows.map((row) => Array.from(row.querySelectorAll('input')));
+
+  return cells;
+}
+
 function makeKeymaps(cells: HTMLInputElement[][], skipOnInput = false): void {
   const n = cells.length;
   const m = cells[0].length;
@@ -90,13 +110,16 @@ async function setKeyListeners(triesRemaining = 20) {
     return;
   }
 
-  console.log(`[Arrows - INFO] Setting Key Listeners ...`);
   const siteMode = getMode();
 
   let cells = [[]];
 
   if (siteMode === 'Karnaugh') {
     cells = getKarnaughCells();
+  } else if (siteMode === 'Sequence') {
+    cells = getSequenceCells();
+  } else if (siteMode === 'Organigram') {
+    cells = getOrganigramCells();
   }
 
   if (cells.length === 0) {
@@ -112,18 +135,42 @@ async function setKeyListeners(triesRemaining = 20) {
   makeKeymaps(cells);
 }
 
+async function waitForModeChange(
+  oldMode,
+  triesRemaining = 20
+): Promise<string> {
+  console.log(
+    `[Arrows - INFO] Waiting for mode to change out of '${oldMode}' (${triesRemaining} tries left)`
+  );
+  const mode = getMode();
+
+  if (mode !== oldMode || triesRemaining === 0) {
+    return mode;
+  }
+
+  await new Promise((r) => setTimeout(r, 100));
+  return await waitForModeChange(oldMode, triesRemaining - 1);
+}
+
 function main() {
   console.log(`[Arrows - INFO] running...`);
 
   // once when page loads
+  console.log(`[Arrows - INFO] Setting Key Listeners ...`);
   setKeyListeners();
 
   // reset every time a navbar link is clicked
+  let currentMode = getMode();
   const navbarLinks = Array.from(document.querySelectorAll('.navbar > a'));
   navbarLinks.forEach((link) => {
     link.addEventListener('click', async (evt) => {
-      // await new Promise((r) => setTimeout(r, 1000)); // maybe?
-      setKeyListeners();
+      const newMode = await waitForModeChange(currentMode);
+
+      if (newMode !== currentMode) {
+        currentMode = newMode;
+        console.log(`[Arrows - INFO] Setting Key Listeners ...`);
+        setKeyListeners();
+      }
     });
   });
 }
